@@ -8,6 +8,8 @@ import pytz
 import csv
 import json
 import collections
+from git import Repo
+
 
 tz = pytz.timezone('Europe/Kiev')
 
@@ -37,6 +39,16 @@ dump_func = {
     'json': write_json
 }
 
+sort_mode = {
+    'ip': 'ipaddress',
+    'date': 'dateandtime',
+    'method': 'method',
+    'url': 'url',
+    'status': 'status',
+    'byte': 'bytessent',
+    'ref': 'refferer',
+    'user': 'useragent'
+}
 
 def open_nginx_log(filename):
     try:
@@ -48,7 +60,7 @@ def open_nginx_log(filename):
         exit()
 
 
-def log_parser(filename=str):
+def log_parser(filename=str, sort=False, filter=False, time=False):
     list = open_nginx_log(filename)
     ng_log = []
     for l in list:
@@ -66,7 +78,12 @@ def log_parser(filename=str):
                 status = datadict["statuscode"]
                 method = data.group(6)
         ng_log.append(datadict)
-    return ng_log
+    ng_result = ng_log
+    if sort in sort_mode:
+        ng_sorted = sorted(ng_log, key=lambda k: k[sort_mode[sort]])
+        ng_result = ng_sorted
+
+    return ng_result
 
 def main():
     parser = argparse.ArgumentParser(
