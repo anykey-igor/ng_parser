@@ -77,7 +77,6 @@ $ cd ng_parser/
 >                        Select CSV or JSON format file
 >  -s {ip,time,method,byte,url,status,agent}, --sort {ip,time,method,byte,url,status,agent}
 >                        Select sort mode report
->  -t TIME, --time TIME  Get time-based report
 >
 >Script for parsing log - nginx_parse
 >```
