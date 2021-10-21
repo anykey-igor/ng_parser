@@ -2,7 +2,7 @@
 ### variables ###
 #################
 
-ARG PYTHON_VERSION=3.8
+ARG PYTHON_VERSION=3.8-slim
 
 #########################
 ### build environment ###
@@ -10,18 +10,30 @@ ARG PYTHON_VERSION=3.8
 
 FROM python:${PYTHON_VERSION}
 
-ENV GH_TOKEN=your GH token
+# Enter your GitHub token
+ENV GH_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxxxxx
 
-ENV REPO_URL= Your repository for LOG file /username/reponame.git
+# Enter your repository URL. For example - /your-login/your_repository.git
+ENV REPO_URL=/your-login/your_repository.git
 
-RUN mkdir /ng_parser
 
-WORKDIR /ng_parser
-ADD requirements.txt /ng_parser/
-RUN pip install -r requirements.txt
-ADD access.log /ng_parser/
-RUN rm requirements.txt
-COPY ng_parser.py /ng_parser/
-COPY .gitconfig /root
+ENV HOME /home/ng_parser
 
+ADD . $HOME
+
+RUN apt-get update && apt-get install -y gnupg && \
+    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E1DD270288B4E6030699E45FA1715D88E1DF1F24 && \
+    echo 'deb http://ppa.launchpad.net/git-core/ppa/ubuntu trusty main' > /etc/apt/sources.list.d/git.list && \
+    apt-get install -y git && \
+    python -m pip install --upgrade pip && \
+    pip install -r $HOME/requirements.txt && \
+    rm $HOME/requirements.txt
+
+RUN /usr/sbin/useradd --create-home --home-dir /home/ng_parser --shell /bin/bash ng_parser
+
+RUN chown -R ng_parser:ng_parser $HOME
+USER ng_parser
+
+WORKDIR $HOME
+RUN ls | grep -v .py$| xargs rm -rf
 ENTRYPOINT ["python", "ng_parser.py"]

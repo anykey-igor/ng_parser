@@ -1,5 +1,5 @@
 # ng_parser
-Parser Nginx log
+#Parser Nginx log
 
 Using log format 
 
